@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block scripts %}
+<script src="{% static "js/highcharts.js" %}"></script>
+<script>
+
+spreadsheet_id = "{{ key }}";
+
+function display(response){
+	var feed = response.feed;
+	// date updated
+	var up = new Date(feed.updated.$t);
+	$("#date-updated").text(up.toString());
+	// construct objects with data formatted for charts
+	var senders = {};
+	var threads = {};
+	var entries = feed.entry;
+	for (var i = entries.length - 1; i >= 0; i--) {
+		// only these 3 stats are kept
+		var name = entries[i].gsx$sender.$t;
+		var date = new Date(entries[i].gsx$date.$t);
+		var thread = entries[i].gsx$thread.$t;
+		// get or create current stats object
+		var sender_stats = senders[name] || { messages: 0};
+		var thread_stats = threads[thread] || {};
+		// update sender stats
+		sender_stats.messages += 1;
+		// replace stats objects
+		senders[name] = sender_stats;
+		threads[name] = thread_stats;
+	};
+
+	var senders_series = [];
+	for(name in senders){
+		senders_series.push([name, senders[name].messages]);
+	}
+
+	$("#sender_pie").highcharts({
+		type : 'pie',
+		title : {
+			text : 'Total Emails Sent'
+		},
+		series : [{
+			type: 'pie',
+			name: 'total messages',
+			data: senders_series
+		}]
+	});
+}
+
+$(document).ready(function(){
+	$.ajax({
+		url : "http://spreadsheets.google.com/feeds/list/"+spreadsheet_id+"/od6/public/values?alt=json&callback=display",
+		type: 'GET'
+	});
+});
+
+</script>
+
+{% endblock scripts %}
+
+{% block content %}
+<div class="alert alert-info alert-dismissable">
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+Because of reasons, this doesn't include anything sent before 4/16
+</div>
+<div id="info_block" class="well">
+	<div>
+		<span>Updated: </span>
+		<span id="date-updated">?</span>
+	</div>
+	<div id="sender_pie" class="span4"></div>
+</div>
+{% endblock content %}
