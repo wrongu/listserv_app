@@ -1,0 +1,3 @@
+[submodule "emails/mailbot"]
+	path = emails/mailbot
+	url = git@github.com:magopian/mailbot.git
