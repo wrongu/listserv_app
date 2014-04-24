@@ -13,20 +13,15 @@ import os
 from private import DJANGO_SECRET_KEY
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-TEMPLATE_DEBUG = False
+TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -51,16 +46,25 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'listserv_app.urls'
 
-WSGI_APPLICATION = 'apache.wsgi.application'
+WSGI_APPLICATION = 'listserv_app.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
+with open('sql_creds.txt', 'r') as f:
+    host = f.readline().strip()
+    un = f.readline().strip()
+    pw = f.readline().strip()
+    socket = f.readline().strip()
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST' : socket,
+        'NAME' : 'listserv_fiuh',
+        'USER' : un,
+        'PASSWORD' : pw
     }
 }
 
