@@ -52,19 +52,15 @@ WSGI_APPLICATION = 'listserv_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-with open('sql_creds.txt', 'r') as f:
-    host = f.readline().strip()
-    un = f.readline().strip()
-    pw = f.readline().strip()
-    socket = f.readline().strip()
+from sql_creds import *
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST' : socket,
+        'HOST' : sql_socket,
         'NAME' : 'listserv_fiuh',
-        'USER' : un,
-        'PASSWORD' : pw
+        'USER' : sql_user,
+        'PASSWORD' : sql_passwd
     }
 }
 

@@ -1,4 +1,5 @@
 private.py*
 static-collected/
 *.pyc
-sql_creds.txt
+sql_creds.py
+email_creds.py
