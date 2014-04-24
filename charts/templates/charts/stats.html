@@ -37,6 +37,9 @@ function display(response){
 	for(name in senders){
 		senders_series.push([name, senders[name].messages]);
 	}
+	senders_series.sort(function(a, b){
+		return b[1]-a[1];
+	});
 
 	$("#sender_pie").highcharts({
 		type : 'pie',
