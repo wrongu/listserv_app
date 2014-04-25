@@ -10,10 +10,16 @@ class Listserv(models.Model):
 	def get_rule(self):
 		return json.loads(self.rule)
 
+	def __unicode__(self):
+		return self.short_name
+
 class Sender(models.Model):
 	name = models.CharField(max_length=32)
 	email = models.CharField(max_length=32)
 	total_sent = models.IntegerField()
+
+	def __unicode__(self):
+		return self.name
 
 class Message(models.Model):
 	sender = models.ForeignKey('Sender')
