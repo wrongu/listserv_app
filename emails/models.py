@@ -1,9 +1,14 @@
 from django.db import models
+import json
 
 # Create your models here.
 class Listserv(models.Model):
 	listserv_address = models.CharField(max_length=64)
 	short_name = models.CharField(max_length = 16)
+	rule = models.TextField()
+
+	def get_rule(self):
+		return json.loads(self.rule)
 
 class Sender(models.Model):
 	name = models.CharField(max_length=32)
