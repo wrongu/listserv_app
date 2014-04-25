@@ -2,16 +2,16 @@ from django.db import models
 
 # Create your models here.
 class Listserv(models.Model):
-	listserv_address = models.CharField(max_length=64)
+	listserv_address = models.CharField(max_length = 64)
 	short_name = models.CharField(max_length = 16)
-	folder = models.CharField(max_length = 16) 
+	folder = models.CharField(max_length = 16)
 
 	def __unicode__(self):
 		return self.short_name
 
 class Sender(models.Model):
-	name = models.CharField(max_length=32)
-	email = models.CharField(max_length=32)
+	name = models.CharField(max_length = 32)
+	email = models.CharField(max_length = 64)
 	total_sent = models.IntegerField()
 
 	def __unicode__(self):
