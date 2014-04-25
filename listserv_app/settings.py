@@ -60,7 +60,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'HOST' : sql_socket,
-        'NAME' : 'listserv_fiuh',
+        'NAME' : sql_database,
         'USER' : sql_user,
         'PASSWORD' : sql_passwd
     }
