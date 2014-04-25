@@ -1,14 +1,10 @@
 from django.db import models
-import json
 
 # Create your models here.
 class Listserv(models.Model):
 	listserv_address = models.CharField(max_length=64)
 	short_name = models.CharField(max_length = 16)
-	rule = models.TextField()
-
-	def get_rule(self):
-		return json.loads(self.rule)
+	folder = models.CharField(max_length = 16) 
 
 	def __unicode__(self):
 		return self.short_name
@@ -29,3 +25,7 @@ class Message(models.Model):
 	length = models.IntegerField()
 	time = models.DateTimeField()
 	thread = models.BigIntegerField() # gmail threads are 64-bit numbers. So are django's BigIntegerFields
+	
+	class Meta:
+		# avoid duplicate entries by enforcing that no single person can send 2 emails at exactly the same time
+		unique_together = (('sender', 'time'),)
