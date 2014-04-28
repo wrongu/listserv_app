@@ -14,7 +14,7 @@ from email_creds import *
 
 class Gmail(object):
 
-	HOST = "smtp.gmail.com"
+	HOST = gmail_server
 	BATCH_SIZE = 64
 
 	def __init__(self, username, password, folder="inbox"):
@@ -39,9 +39,9 @@ class Gmail(object):
 		# Part I: Ids
 		filters = []
 		if unread_only:
-			fiters.extend(['Unseen', 'Unflagged'])
+			filters.extend(['Unseen', 'Unflagged'])
 		if since:
-			filters.append('SINCE "%s"' % (datetime.strftime("%d-%b-%Y")))
+			filters.append('SINCE "%s"' % (since.strftime("%d-%b-%Y")))
 		# query server for ids matching filters
 		message_ids = self.client.search(filters)
 
@@ -91,7 +91,7 @@ def email_to_database(email_obj, thread_id, message_id):
 		return
 
 	# check if message already accounted for
-	if Message.filter(gm_id=message_id).first():
+	if Message.objects.filter(gm_id=message_id).first():
 		return
 
 	##################
@@ -137,8 +137,12 @@ if __name__ == '__main__':
 	while True:
 		for g, l in scrapers:
 			latest = Message.objects.filter(listserv=l).order_by('-time').first()
+			if latest:
+				latest = latest.time # get the datetime object
+			else: # the first-time running it, there is no latest. set to way-back-when.
+				latest = datetime.datetime(year=2000, month=01, day=01)
 			print "getting emails for", g, "since", latest
-			for m in g.messages(since=latest.time):
+			for m in g.messages(unread_only=False, since=latest):
 				try:
 					email_to_database(*m)
 				except KeyboardInterrupt:
