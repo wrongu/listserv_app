@@ -5,6 +5,7 @@ class Listserv(models.Model):
 	listserv_address = models.CharField(max_length = 64)
 	short_name = models.CharField(max_length = 16)
 	folder = models.CharField(max_length = 16)
+	url = models.CharField(max_length = 16)
 
 	def __unicode__(self):
 		return self.short_name
