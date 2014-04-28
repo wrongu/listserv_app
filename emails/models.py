@@ -25,7 +25,11 @@ class Message(models.Model):
 	length = models.IntegerField()
 	time = models.DateTimeField()
 	thread = models.BigIntegerField() # gmail threads are 64-bit numbers. So are django's BigIntegerFields
+	gm_id = models.BigIntegerField(unique=True) # gmail provides us with unique ids. we can use it to avoid double-counting.
 	
+	def __unicode__(self):
+		return u'%s: "%s" <%s>' % (str(self.sender), self.title, self.time.strftime("%m/%d %H:%M"))
+
 	class Meta:
 		# avoid duplicate entries by enforcing that no single person can send 2 emails at exactly the same time
 		unique_together = (('sender', 'time'),)
