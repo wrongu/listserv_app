@@ -149,4 +149,6 @@ if __name__ == '__main__':
 					raise # pass it on
 				except Exception, e:
 					print e
+		print "----------------------"
+		print "sleeping for a while.."
 		sleep(INTERVAL_MINS * 60)
