@@ -51,5 +51,29 @@ Because of reasons, this doesn't include anything sent before {{ startdate }}
 	</script>
 	{% endfor %}
 	{% endautoescape %}
+	<!--div class="container stats-row well">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Thread</th>
+					<th>Score</th>
+					<th>Participants</th>
+					<th>Messages</th>
+					<th>Duration</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for thread in all_thread %}
+			<tr>
+				<td>{{thread.title}}</td>
+				<td>{{thread.score}}</td>
+				<td>{{thread.participants}}</td>
+				<td>{{thread.messages}}</td>
+				<td>{{thread.duration}}</td>
+			</tr>
+			</tbody>
+			{% endfor %}
+		</table>
+	</div-->
 </div>
 {% endblock content %}

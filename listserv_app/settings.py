@@ -21,11 +21,20 @@ from private import DJANGO_SECRET_KEY
 SECRET_KEY = DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ADMINS = (('Richard', 'lange.richard.d@gmail.com'),)
+
+from email_creds import *
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = admin_user
+EMAIL_HOST_PASSWORD = admin_passwd
+
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -80,7 +89,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/

@@ -8,7 +8,8 @@ https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/
 """
 
 import os, sys
-sys.path.append("/home/richard/code/listserv_app")
+sys.path.insert(0, "/var/www")
+sys.path.insert(1, "/var/www/listserv_app")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "listserv_app.settings")
 
 from django.core.wsgi import get_wsgi_application

@@ -1,6 +1,7 @@
 # email scraper based on mailbot
 
 import os, sys
+# TODO make this independent of my personal setup
 sys.path.append("/home/richard/code/listserv_app")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "listserv_app.settings")
 
@@ -9,7 +10,7 @@ import imapclient
 from time import time, sleep
 from dateutil.parser import parse as date_parse
 import datetime
-from emails.models import Listserv, Sender, Message
+from emails.models import Listserv, Sender, Message, Thread
 from email_creds import *
 
 class Gmail(object):
@@ -67,7 +68,7 @@ class Gmail(object):
 					continue
 				yield (msg_obj, thread, msg_id)
 
-def __get_listserv_address(email_obj):
+def __get_listserv(email_obj):
 	dest = email_obj.get('To')
 	return Listserv.objects.filter(listserv_address=dest).first()
 
@@ -81,12 +82,13 @@ def __get_sender_name_email(email_obj):
 	return name, address
 
 def __remove_quote_lines(payload):
+	# most email clients designate reply quotes with a ">"
 	lines = payload.split('\r\n')
 	return '\n'.join(filter(lambda l: not l.startswith(">"), lines))
 
 def email_to_database(email_obj, thread_id, message_id):
 	# check if listserv is ok
-	listserv = __get_listserv_address(email_obj)
+	listserv = __get_listserv(email_obj)
 	if listserv is None:
 		return
 
@@ -113,7 +115,7 @@ def email_to_database(email_obj, thread_id, message_id):
 		else:
 			# must be new! create 'em
 			print "creating new sender: %s <%s>" % (sender_name, sender_email)
-			sender = Sender(name=sender_name, email=sender_email, total_sent=0)
+			sender = Sender(name=sender_name, email=sender_email, listserv=listserv, total_sent=0)
 	# record the new email in sender's total
 	sender.total_sent += 1
 	# saving gives the sender an id (auto-incremented)
@@ -129,20 +131,39 @@ def email_to_database(email_obj, thread_id, message_id):
 	length = len(__remove_quote_lines(content))
 	time = date_parse(email_obj.get('Date'))
 	# create and save the new message object
-	message = Message(sender=sender, listserv=listserv, title=subject, content=content, length=length, time=time, thread=thread_id, gm_id=message_id)
+	message = Message(sender=sender, listserv=listserv, title=subject, content=content, length=length, time=time, thread_id=thread_id, gm_id=message_id)
 	message.save()
+
+	##################
+	## THREAD TABLE ##
+	##################
+	thread = Thread.objects.filter(thread_id=thread_id).first()
+	new_thread = thread == None
+	if new_thread:
+		# new thread!
+		thread = Thread(thread_id=thread_id, length=0, participants=0, score=0)
+	thread.participants = len(Message.objects.filter(thread_id=thread_id).values('sender').distinct())
+	thread.length += 1
+	if new_thread:
+		thread.start_message = message
+		thread.end_message = message
+	elif time > thread.end_message.time:
+		thread.end_message = message
+	elif time < thread.start_message.time:
+		thread.start_message = message
+	thread.update_score()
+	thread.save()
+
 	print "saved message", message
 
 if __name__ == '__main__':
-	INTERVAL_MINS = 5 # same as zapier
-	scrapers = [(Gmail(gmail_user, gmail_passwd, l.folder), l) for l in Listserv.objects.all()]
+	INTERVAL_MINS = 10 # check for updates every 10 minutes
 
 	while True:
-		for g, l in scrapers:
-			latest = Message.objects.filter(listserv=l).order_by('-time').first()
-			if latest:
-				latest = latest.time - datetime.timedelta(days=1) # get the datetime object. go back one day.
-			else: # the first-time running it, there is no latest. set to way-back-when.
+		for g, l in [(Gmail(gmail_user, gmail_passwd, l.folder), l) for l in Listserv.objects.all()]:
+			try:
+				latest = Message.latest() - datetime.timedelta(days=1) # get the datetime object. go back one day.
+			except: # the first-time running it, there is no latest. set to way-back-when.
 				latest = datetime.datetime(year=2000, month=01, day=01)
 			print "getting emails for", g, "since", latest
 			for m in g.messages(unread_only=False, since=latest):
