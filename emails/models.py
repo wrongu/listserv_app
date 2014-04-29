@@ -31,6 +31,12 @@ class Message(models.Model):
 	def __unicode__(self):
 		return u'%s: "%s" <%s>' % (str(self.sender), self.title, self.time.strftime("%m/%d %H:%M"))
 
+	@classmethod
+	def latest(cls):
+		"""Return the datetime object of the most recent message
+		"""
+		return cls.objects.order_by('-time').first().time
+
 	class Meta:
 		# avoid duplicate entries by enforcing that no single person can send 2 emails at exactly the same time
 		unique_together = (('sender', 'time'),)
