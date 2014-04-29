@@ -419,7 +419,7 @@ class Highchart(object):
 
     def generate(self):
         """ __render__ Wrapper """
-        return self.__render__(ret=True, template="gecko")
+        return self.__render__(ret=True)
 
 
     def set_yAxis(self, *axis):

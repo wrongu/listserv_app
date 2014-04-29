@@ -18,11 +18,9 @@
 <div id="charts-container" class="well">
 	{% autoescape off %}
 	{% for chart in charts %}
-	<div class="chart" id="chart{{ forloop.counter }}"></div>
+	<div class="chart" id="{{ chart.id }}"></div>
 	<script>
-		$("chart{{ forloop.counter }}").highcharts(
-			{{ chart }}
-		);
+		{{ chart.js }}
 	</script>
 	{% endfor %}
 	{% endautoescape %}

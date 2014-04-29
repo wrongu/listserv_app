@@ -98,6 +98,9 @@ def email_to_database(email_obj, thread_id, message_id):
 	## SENDER TABLE ##
 	##################
 	sender_name, sender_email = __get_sender_name_email(email_obj)
+	# remove quotes from name. why do emails do that?
+	if sender_name.startswith("\""):
+		sender_name = sender_name[1:-1]
 	sender = Sender.objects.filter(name=sender_name, email=sender_email).first()
 	if not sender:
 		# check for email only
