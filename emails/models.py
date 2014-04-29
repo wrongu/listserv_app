@@ -37,6 +37,12 @@ class Message(models.Model):
 		"""
 		return cls.objects.order_by('-time').first().time
 
+	@classmethod
+	def earliest(cls):
+		"""Return the datetime object of the oldest message
+		"""
+		return cls.objects.order_by('-time').last().time
+
 	class Meta:
 		# avoid duplicate entries by enforcing that no single person can send 2 emails at exactly the same time
 		unique_together = (('sender', 'time'),)

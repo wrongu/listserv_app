@@ -16,7 +16,7 @@ def __chart_total_sent(listserv, limit=30, **kwarg_filters):
 	series.sort(key=lambda point: point[1], reverse=True) 
 	# remove all the extras. just too many.
 	series = series[:limit]
-	series.append(['Everybody Else', sum([point[1] for point in series[limit:]])])
+	series.append(['Everybody Else', sum([int(point[1]) for point in series[limit:]])])
 	chart = Highchart(renderTo="total_sent")
 	chart.title("Total Emails Sent")
 	chart.add_data_set(series, series_type="pie", name="Emails")
@@ -71,7 +71,7 @@ def __chart_trend_killers(listserv, limit=24, **kwarg_filters):
 		"id" : "trend_killers",
 		"js" : chart.generate(),
 		"title" : "Trend killers",
-		"description" : "Each thread is scored based on duration, number of messages, and number of participants. Points are awarded to whomever got in the last word."
+		"description" : "Each email thread is scored based on duration, number of messages, and number of participants. Points are awarded to whomever got in the last word."
 	}
 
 __ts_cache = (__epoch, None) # (datetime, value) cache. only updated when new messages arrive.
@@ -105,13 +105,14 @@ def __chart_trend_setters(listserv, limit=24, **kwarg_filters):
 		"id" : "trend_setters",
 		"js" : chart.generate(),
 		"title" : "Trend Setters",
-		"description" : "Each thread is scored based on duration, number of messages, and number of participants. Points are awarded to whomever got the thead started."
+		"description" : "Each email thread is scored based on duration, number of messages, and number of participants. Points are awarded to whomever got the thead started."
 	}
 
 def __stats_args(listserv, **kwarg_filters):
 	args = {
 		'title' : listserv.short_name,
-		'charts' : []
+		'charts' : [],
+		'startdate' : Message.earliest().strftime("%b %d, %Y")
 	}
 	args['charts'].append(__chart_total_sent(listserv, **kwarg_filters))
 	args['charts'].append(__chart_trend_setters(listserv, **kwarg_filters))

@@ -5,7 +5,13 @@
 
 {% block scripts %}
 <script src="{% static "js/highcharts.js" %}"></script>
-
+<script>
+$(function(){
+	$(".alert button.close").click(function (e) {
+	    $(this).parent().slideUp();
+	});
+});
+</script>
 {% endblock scripts %}
 
 {% block content %}
@@ -15,10 +21,20 @@
 <p class="lead">Because everybody loves graphs<span style="font-size:0.6em; color:#AAA;">...right?</span></p>
 </div>
 
+<div class="alert alert-info alert-dismissable">
+<button type="button" class="close" aria-hidden="true">&times;</button>
+Because of reasons, this doesn't include anything sent before {{ startdate }}
+</div>
 <div id="charts-container" class="well">
 	{% autoescape off %}
 	{% for chart in charts %}
-	<div class="chart" id="{{ chart.id }}"></div>
+	<div>
+		<div>
+			<h3>{{ chart.title }}</h3>
+			<p><small>{{ chart.description }}</small></p>
+		</div>
+		<div id="{{ chart.id }}"></div>
+	</div>
 	<script>
 		{{ chart.js }}
 	</script>
