@@ -138,7 +138,7 @@ if __name__ == '__main__':
 		for g, l in scrapers:
 			latest = Message.objects.filter(listserv=l).order_by('-time').first()
 			if latest:
-				latest = latest.time # get the datetime object
+				latest = latest.time - datetime.timedelta(days=1) # get the datetime object. go back one day.
 			else: # the first-time running it, there is no latest. set to way-back-when.
 				latest = datetime.datetime(year=2000, month=01, day=01)
 			print "getting emails for", g, "since", latest
