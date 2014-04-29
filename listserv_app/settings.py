@@ -9,9 +9,11 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+import os, sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+sys.path.append(os.path.join(BASE_DIR, "emails")) # allow for "import PyHighcharts" etc
 
 from private import DJANGO_SECRET_KEY
 
