@@ -16,13 +16,15 @@ def __chart_total_sent(listserv, limit=30, **kwarg_filters):
 	series.sort(key=lambda point: point[1], reverse=True) 
 	# remove all the extras. just too many.
 	series = series[:limit]
-	series.append(['Everybody Else', sum(point[1] for point in series[limit:])])
+	series.append(['Everybody Else', sum([point[1] for point in series[limit:]])])
 	chart = Highchart(renderTo="total_sent")
 	chart.title("Total Emails Sent")
-	chart.add_data_set(series, series_type="pie", name="")
+	chart.add_data_set(series, series_type="pie", name="Emails")
 	return {
 		"id" : "total_sent",
-		"js" : chart.generate()
+		"js" : chart.generate(),
+		"title" : "Total Emails Sent",
+		"description" : "Y'all send a lot of emails to %s..." % listserv.short_name
 	}
 
 __decay_factor = -7.614368693763378e-06	# chosen such that 99% decay is reached at exactly 1 week
@@ -41,9 +43,9 @@ def __thread_score(thread_id, **kwarg_filters):
 
 __epoch = datetime.datetime(year=1970, month=1, day=1, tzinfo=pytz.UTC)
 __tk_cache = (__epoch, None) # (datetime, value) cache. only updated when new messages arrive.
-def __chart_trend_killers(listserv, limit=16, **kwarg_filters):
+def __chart_trend_killers(listserv, limit=24, **kwarg_filters):
 	global __tk_cache
-	updated, series = __tk_cache
+	updated, serieses = __tk_cache
 	if Message.objects.latest('time').time > updated:
 		# needs update!
 		tupdate = pytz.UTC.localize(datetime.datetime.utcnow())
@@ -53,25 +55,29 @@ def __chart_trend_killers(listserv, limit=16, **kwarg_filters):
 			# update total score for the last sender in this thread
 			score, starter, ender = __thread_score(thread)
 			scores[ender.sender] = scores.get(ender.sender, 0) + score
-		# construct series
-		series = [[__string_escape(sender.name), score] for sender, score in scores.iteritems()]
+		data = scores.items() # list tupes of (name, score)
 		# data is easier to read if sorted
-		series.sort(key=lambda point: point[1], reverse=True)
+		data.sort(key=lambda point: point[1], reverse=True)
 		# only keep top 'limit' scores
-		series = series[:limit]
-		__tk_cache = (tupdate, series)
+		data = data[:limit]
+		# construct series
+		serieses = [{'name' : __string_escape(sender.name), 'series_type' : 'column', 'data' :  [score]} for sender, score in data]
+		__tk_cache = (tupdate, serieses)
 	chart = Highchart(renderTo="trend_killers")
 	chart.title("Trend Killers")
-	chart.add_data_set(series, series_type="column", name="")
+	for s in serieses:
+		chart.add_data_set(**s)
 	return {
 		"id" : "trend_killers",
-		"js" : chart.generate()
+		"js" : chart.generate(),
+		"title" : "Trend killers",
+		"description" : "Each thread is scored based on duration, number of messages, and number of participants. Points are awarded to whomever got in the last word."
 	}
 
 __ts_cache = (__epoch, None) # (datetime, value) cache. only updated when new messages arrive.
-def __chart_trend_setters(listserv, limit=16, **kwarg_filters):
+def __chart_trend_setters(listserv, limit=24, **kwarg_filters):
 	global __ts_cache
-	updated, series = __ts_cache
+	updated, serieses = __ts_cache
 	if Message.objects.latest('time').time > updated:
 		# needs update!
 		tupdate = pytz.UTC.localize(datetime.datetime.utcnow())
@@ -81,19 +87,25 @@ def __chart_trend_setters(listserv, limit=16, **kwarg_filters):
 			# update total score for the last sender in this thread
 			score, starter, ender = __thread_score(thread)
 			scores[starter.sender] = scores.get(starter.sender, 0) + score
-		# construct series
-		series = [[__string_escape(sender.name), score] for sender, score in scores.iteritems()]
+		data = scores.items() # list tupes of (name, score)
 		# data is easier to read if sorted
-		series.sort(key=lambda point: point[1], reverse=True)
+		data.sort(key=lambda point: point[1], reverse=True)
 		# only keep top 'limit' scores
-		series = series[:limit]
-		__ts_cache = (tupdate, series)
+		data = data[:limit]
+		# construct series
+		serieses = [{'name' : __string_escape(sender.name), 'series_type' : 'column', 'data' :  [score]} for sender, score in data]
+		__ts_cache = (tupdate, serieses)
+	else:
+		print "ts cache success!"
 	chart = Highchart(renderTo="trend_setters")
 	chart.title("Trend Setters")
-	chart.add_data_set(series, series_type="column", name="")
+	for s in serieses:
+		chart.add_data_set(**s)
 	return {
 		"id" : "trend_setters",
-		"js" : chart.generate()
+		"js" : chart.generate(),
+		"title" : "Trend Setters",
+		"description" : "Each thread is scored based on duration, number of messages, and number of participants. Points are awarded to whomever got the thead started."
 	}
 
 def __stats_args(listserv, **kwarg_filters):
