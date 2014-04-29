@@ -14,6 +14,17 @@ $(function(){
 </script>
 {% endblock scripts %}
 
+{% block styles %}
+<style>
+.stats-row{
+	margin-top:40px;
+}
+@media (min-width: @screen-md-min) {
+	.stats-label{ text-align:right; }
+}
+</style>
+{% endblock styles %}
+
 {% block content %}
 
 <div class="page-header">
@@ -25,15 +36,15 @@ $(function(){
 <button type="button" class="close" aria-hidden="true">&times;</button>
 Because of reasons, this doesn't include anything sent before {{ startdate }}
 </div>
-<div id="charts-container" class="well">
+<div id="charts-container">
 	{% autoescape off %}
 	{% for chart in charts %}
-	<div>
-		<div>
+	<div class="container stats-row well">
+		<div class="col-md-5 stats-label">
 			<h3>{{ chart.title }}</h3>
 			<p><small>{{ chart.description }}</small></p>
 		</div>
-		<div id="{{ chart.id }}"></div>
+		<div class="col-md-7" id="{{ chart.id }}"></div>
 	</div>
 	<script>
 		{{ chart.js }}

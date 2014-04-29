@@ -9,14 +9,14 @@ from emails.PyHighcharts import Highchart
 def __string_escape(string):
 	return re.escape(str(string))
 
-def __chart_total_sent(listserv, limit=30, **kwarg_filters):
+def __chart_total_sent(listserv, limit=40, **kwarg_filters):
 	senders = Sender.objects.filter(**kwarg_filters).order_by('total_sent')
 	series = [[__string_escape(sender.name), sender.total_sent] for sender in senders if sender.total_sent > 1]
 	# sort by total sent: ['name', 4] => 4
 	series.sort(key=lambda point: point[1], reverse=True) 
 	# remove all the extras. just too many.
+	all_others = sum([int(point[1]) for point in series[limit:]])
 	series = series[:limit]
-	series.append(['Everybody Else', sum([int(point[1]) for point in series[limit:]])])
 	chart = Highchart(renderTo="total_sent")
 	chart.title("Total Emails Sent")
 	chart.add_data_set(series, series_type="pie", name="Emails")
@@ -24,7 +24,7 @@ def __chart_total_sent(listserv, limit=30, **kwarg_filters):
 		"id" : "total_sent",
 		"js" : chart.generate(),
 		"title" : "Total Emails Sent",
-		"description" : "Y'all send a lot of emails to %s..." % listserv.short_name
+		"description" : "Y'all send a lot of emails to %s... Everybody else not shown sent a total of %d emails." % (listserv.short_name, all_others)
 	}
 
 __decay_factor = -7.614368693763378e-06	# chosen such that 99% decay is reached at exactly 1 week
@@ -63,14 +63,14 @@ def __chart_trend_killers(listserv, limit=24, **kwarg_filters):
 		# construct series
 		serieses = [{'name' : __string_escape(sender.name), 'series_type' : 'column', 'data' :  [score]} for sender, score in data]
 		__tk_cache = (tupdate, serieses)
-	chart = Highchart(renderTo="trend_killers")
-	chart.title("Trend Killers")
+	chart = Highchart(renderTo="thread_killers")
+	chart.title("Thread Killers")
 	for s in serieses:
 		chart.add_data_set(**s)
 	return {
-		"id" : "trend_killers",
+		"id" : "thread_killers",
 		"js" : chart.generate(),
-		"title" : "Trend killers",
+		"title" : "Thread killers",
 		"description" : "Each email thread is scored based on duration, number of messages, and number of participants. Points are awarded to whomever got in the last word."
 	}
 
