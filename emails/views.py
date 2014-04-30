@@ -24,7 +24,7 @@ def __chart_total_sent(listserv, limit=40, **kwarg_filters):
 		"id" : "total_sent",
 		"js" : chart.generate(),
 		"title" : "Total Emails Sent",
-		"description" : "Y'all send a lot of emails to %s... Everybody else not shown sent a total of %d emails." % (listserv.short_name, all_others)
+		"description" : "Y'all send a lot of emails to %s... (Everybody else not shown sent a total of %d.)" % (listserv.short_name, all_others)
 	}
 
 __decay_factor = -7.614368693763378e-06	# chosen such that 99% decay is reached at exactly 1 week
@@ -42,6 +42,7 @@ def __thread_score(thread_id, **kwarg_filters):
 	return thread_score, thread_start, thread_end
 
 __epoch = datetime.datetime(year=1970, month=1, day=1, tzinfo=pytz.UTC)
+
 __tk_cache = (__epoch, None) # (datetime, value) cache. only updated when new messages arrive.
 def __chart_trend_killers(listserv, limit=24, **kwarg_filters):
 	global __tk_cache
@@ -71,7 +72,7 @@ def __chart_trend_killers(listserv, limit=24, **kwarg_filters):
 		"id" : "thread_killers",
 		"js" : chart.generate(),
 		"title" : "Thread killers",
-		"description" : "Each email thread is scored based on duration, number of messages, and number of participants. Points are awarded to whomever got in the last word."
+		"description" : "Same formula, but points are awarded to whomever got in the last word."
 	}
 
 __ts_cache = (__epoch, None) # (datetime, value) cache. only updated when new messages arrive.
