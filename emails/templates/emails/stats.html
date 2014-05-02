@@ -51,7 +51,7 @@ Because of reasons, this doesn't include anything sent before {{ startdate }}
 	</script>
 	{% endfor %}
 	{% endautoescape %}
-	<!--div class="container stats-row well">
+	<div class="container stats-row well">
 		<table class="table">
 			<thead>
 				<tr>
@@ -63,7 +63,7 @@ Because of reasons, this doesn't include anything sent before {{ startdate }}
 				</tr>
 			</thead>
 			<tbody>
-			{% for thread in all_thread %}
+			{% for thread in all_threads %}
 			<tr>
 				<td>{{thread.title}}</td>
 				<td>{{thread.score}}</td>
@@ -74,6 +74,6 @@ Because of reasons, this doesn't include anything sent before {{ startdate }}
 			</tbody>
 			{% endfor %}
 		</table>
-	</div-->
+	</div>
 </div>
 {% endblock content %}
