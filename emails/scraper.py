@@ -162,7 +162,7 @@ if __name__ == '__main__':
 	while True:
 		for g, l in [(Gmail(gmail_user, gmail_passwd, l.folder), l) for l in Listserv.objects.all()]:
 			try:
-				latest = Message.latest() - datetime.timedelta(days=1) # get the datetime object. go back one day.
+				latest = Message.latest(l) - datetime.timedelta(days=1) # get the datetime object. go back one day.
 			except: # the first-time running it, there is no latest. set to way-back-when.
 				latest = datetime.datetime(year=2000, month=01, day=01)
 			print "getting emails for", g, "since", latest
